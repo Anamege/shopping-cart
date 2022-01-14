@@ -31,7 +31,7 @@ const useDataApi = (initialUrl, initialData) => {
       dispatch({ type: "FETCH_INIT" });
       try {
         const result = await axios(url);
-        console.log("FETCH FROM URl");
+       console.log("FETCH FROM UR1");
         if (!didCancel) {
           dispatch({ type: "FETCH_SUCCESS", payload: result.data });
         }
@@ -102,27 +102,36 @@ const Products = (props) => {
   const addToCart = (e) => {
     let name = e.target.name;
     let item = items.filter((item) => item.name == name);
+    if (item[0].instock ==0) return;
+    item[0].instock = item[0].instock -1;
     console.log(`add to Cart ${JSON.stringify(item)}`);
     setCart([...cart, ...item]);
     //doFetch(query);
   };
   const deleteCartItem = (index) => {
     let newCart = cart.filter((item, i) => index != i);
+    let target = cart.filter((item, index) => index == index);
+    let newItems = items.map((item, index) => {
+      if (item.name == target[0].name) item.instock = item.instock + 1;
+      return item;
+    });
     setCart(newCart);
+    setItems(newItems);
   };
-  const photos = ["apple.jpg", "oranges.jpg", "beans.jpg", "cabbage.jpg"];
+  //const photos = ["apple.jpg", "oranges.jpg", "beans.jpg", "cabbage.jpg"];
 
   let list = items.map((item, index) => {
-    //let n = index + 1049;
-    //let url = "https://picsum.photos/id/" + n + "/50/50";
+   let n = index + 75;
+   let url = "https://picsum.photos/id/" + n + "/50/50";
+
 
     return (
       <li key={index}>
-        <Image src={photos[index % 4]} width={70} roundedCircle></Image>
-        <Button variant="primary" size="large">
-          {item.name}:{item.cost}
-        </Button>
-        <input name={item.name} type="submit" onClick={addToCart}></input>
+        <Image src={url} width={70} roundedCircle></Image>
+        <Button variant="success" size="large">
+          {item.name}:{item.cost}<br />InStock: {item.instock}
+        </Button><br /> 
+        <input name={item.name} type="submit" value="Add To Cart" onClick={addToCart}></input>
       </li>
     );
   });
@@ -167,7 +176,7 @@ const Products = (props) => {
   };
   const restockProducts = (url) => {
     doFetch(url);
-    let newItems = data.map((item) => {
+    let newItems =items.map((item, index) => {
       let { name, country, cost, instock } = item;
       return { name, country, cost, instock };
     });
@@ -178,15 +187,15 @@ const Products = (props) => {
     <Container>
       <Row>
         <Col>
-          <h1>Product List</h1>
+          <h2>Product List</h2><br/>
           <ul style={{ listStyleType: "none" }}>{list}</ul>
         </Col>
         <Col>
-          <h1>Cart Contents</h1>
+          <h2>Cart Contents</h2><br/>
           <Accordion>{cartList}</Accordion>
         </Col>
         <Col>
-          <h1>CheckOut </h1>
+          <h2>CheckOut </h2><br/>
           <Button onClick={checkOut}>CheckOut $ {finalList().total}</Button>
           <div> {finalList().total > 0 && finalList().final} </div>
         </Col>
@@ -195,14 +204,15 @@ const Products = (props) => {
         <form
           onSubmit={(event) => {
             restockProducts(`http://localhost:1337/${query}`);
+            restockProducts(`${query}`);
             console.log(`Restock called on ${query}`);
             event.preventDefault();
           }}
-        >
+        ><br />
           <input
             type="text"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => setQuery(event.target.value)}            
           />
           <button type="submit">ReStock Products</button>
         </form>
