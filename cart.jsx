@@ -121,7 +121,7 @@ const Products = (props) => {
   //const photos = ["apple.jpg", "oranges.jpg", "beans.jpg", "cabbage.jpg"];
 
   let list = items.map((item, index) => {
-   let n = index + 75;
+   let n = index + 107;
    let url = "https://picsum.photos/id/" + n + "/50/50";
 
 
